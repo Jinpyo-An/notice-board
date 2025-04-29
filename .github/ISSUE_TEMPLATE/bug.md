@@ -1,3 +1,11 @@
+---
+name: 🐛 Bug Report
+about: Create a report to help us improve
+title: "[BUG] "
+labels: bug
+assignees: ''
+---
+
 ## 버그 설명 (Description)
 
 어떤 버그가 발생했는지 명확하고 자세하게 설명해주세요.

@@ -1,3 +1,11 @@
+---
+name: ✨ Feature Request
+about: Suggest an idea for this project
+title: "[FEAT] "
+labels: enhancement
+assignees: ''
+---
+
 ## 문제 제기 (Problem Statement)
 
 이 기능이 왜 필요한가요? 어떤 문제를 해결하거나 개선할 수 있나요?

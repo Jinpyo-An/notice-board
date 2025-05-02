@@ -1,22 +1,27 @@
 package com.example.noticeboard.service;
 
 import com.example.noticeboard.domain.Post;
-import com.example.noticeboard.dto.PostDetailResponse;
+import com.example.noticeboard.dto.post.PostDetailResponse;
+import com.example.noticeboard.exception.PostNotFoundException;
 import com.example.noticeboard.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-// 메서드 명: 비즈니스 로직을 수행하는 메서드, 행위를 나타내는 메서드명으로
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class PostService {
+
+    /**
+     * 트랜잭션 전파 고민
+     */
 
     private final PostRepository postRepository;
 
     public PostDetailResponse getPostDetail(Long postId) {
-        final Post post = postRepository.findWithAuthorById(postId);
-
-        // todo post가 null일 때 exception 처리 해야 함
+        final Post post = postRepository.findWithAuthorById(postId)
+                .orElseThrow(() -> new PostNotFoundException(postId));
 
         return new PostDetailResponse(
                 post.getId(),

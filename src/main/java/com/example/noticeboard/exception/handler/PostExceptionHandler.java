@@ -1,0 +1,25 @@
+package com.example.noticeboard.exception.handler;
+
+import com.example.noticeboard.controller.PostController;
+import com.example.noticeboard.dto.ErrorResponse;
+import com.example.noticeboard.exception.PostNotFoundException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+@Slf4j
+@RestControllerAdvice(assignableTypes = PostController.class)
+public class PostExceptionHandler {
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> handlePostNotFound(PostNotFoundException ex) {
+        ErrorResponse response = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.NOT_FOUND.value()
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+}

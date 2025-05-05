@@ -22,4 +22,17 @@ public class User {
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    public User() {
+    }
+
+    public User(String username) {
+        this.username = username;
+    }
+
+    public User(Long id, String username, LocalDateTime createdAt) {
+        this.id = id;
+        this.username = username;
+        this.createdAt = createdAt;
+    }
 }

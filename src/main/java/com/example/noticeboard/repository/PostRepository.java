@@ -13,6 +13,10 @@ public class PostRepository {
 
     private final EntityManager em;
 
+    public void createPost(Post newPost) {
+        em.persist(newPost);
+    }
+
     public Optional<Post> findWithAuthorById(Long postId) {
         String query = "SELECT p FROM Post p JOIN FETCH p.author WHERE p.id = :postId";
         return em.createQuery(query, Post.class)

@@ -2,9 +2,9 @@ package com.example.noticeboard.service;
 
 import com.example.noticeboard.domain.Post;
 import com.example.noticeboard.domain.User;
-import com.example.noticeboard.dto.post.PostDetailResponse;
 import com.example.noticeboard.exception.PostNotFoundException;
 import com.example.noticeboard.repository.PostRepository;
+import com.example.noticeboard.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +23,9 @@ class PostServiceTest {
     @Mock
     private PostRepository postRepository;
 
+    @Mock
+    private UserRepository userRepository;
+
     @InjectMocks
     private PostService postService;
 
@@ -35,14 +38,14 @@ class PostServiceTest {
         when(postRepository.findWithAuthorById(1L)).thenReturn(Optional.of(post));
 
         //when
-        PostDetailResponse response = postService.getPostDetail(1L);
+        Post findPost = postService.getPostDetail(1L);
 
-        //than
-        assertThat(response.getId()).isEqualTo(1L);
-        assertThat(response.getTitle()).isEqualTo("Title");
-        assertThat(response.getContent()).isEqualTo("Content");
-        assertThat(response.getAuthorId()).isEqualTo(1L);
-        assertThat(response.getAuthorName()).isEqualTo("jinpyo");
+        //then
+        assertThat(findPost.getId()).isEqualTo(1L);
+        assertThat(findPost.getTitle()).isEqualTo("Title");
+        assertThat(findPost.getContent()).isEqualTo("Content");
+        assertThat(findPost.getAuthor().getId()).isEqualTo(1L);
+        assertThat(findPost.getAuthor().getUsername()).isEqualTo("jinpyo");
     }
 
     @Test
@@ -53,5 +56,10 @@ class PostServiceTest {
         // when & then
         assertThatThrownBy(() -> postService.getPostDetail(99L))
                 .isInstanceOf(PostNotFoundException.class);
+    }
+
+    @Test
+    void 게시물_작성_성공() {
+
     }
 }

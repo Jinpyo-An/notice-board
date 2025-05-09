@@ -1,9 +1,11 @@
 package com.example.noticeboard.service;
 
 import com.example.noticeboard.domain.Post;
-import com.example.noticeboard.dto.post.PostDetailResponse;
+import com.example.noticeboard.domain.User;
 import com.example.noticeboard.exception.PostNotFoundException;
+import com.example.noticeboard.exception.UserNotFoundException;
 import com.example.noticeboard.repository.PostRepository;
+import com.example.noticeboard.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,24 +15,22 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class PostService {
 
-    /**
-     * 트랜잭션 전파 고민
-     */
-
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
-    public PostDetailResponse getPostDetail(Long postId) {
-        final Post post = postRepository.findWithAuthorById(postId)
+    public Post getPostDetail(Long postId) {
+        return postRepository.findWithAuthorById(postId)
                 .orElseThrow(() -> new PostNotFoundException(postId));
+    }
 
-        return new PostDetailResponse(
-                post.getId(),
-                post.getTitle(),
-                post.getContent(),
-                post.getCreatedAt(),
-                post.getUpdatedAt(),
-                post.getAuthor().getId(),
-                post.getAuthor().getUsername()
-        );
+    @Transactional
+    public Long createPost(Long authorId, String title, String content) {
+        User author = userRepository.findUserById(authorId)
+                .orElseThrow(() -> new UserNotFoundException(authorId));
+
+        Post newPost = new Post(title, content, author);
+        postRepository.createPost(newPost);
+
+        return newPost.getId();
     }
 }

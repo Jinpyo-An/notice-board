@@ -4,8 +4,9 @@ import com.example.noticeboard.dto.ErrorResponse;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -21,17 +22,21 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<ErrorResponse> handleNullPointer(NullPointerException ex) {
         log.error("널 포인터 예외 발생", ex);
-        ErrorResponse response = new ErrorResponse("서버 내부 오류가 발생했습니다.", INTERNAL_SERVER_ERROR.value());
+        ErrorResponse response = ErrorResponse.from("서버 내부 오류가 발생했습니다.", INTERNAL_SERVER_ERROR.value());
 
-        return new ResponseEntity<>(response, INTERNAL_SERVER_ERROR);
+        return ResponseEntity
+                .status(INTERNAL_SERVER_ERROR)
+                .body(response);
     }
 
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<ErrorResponse> handleDataAccess(DataAccessException ex) {
         log.error("DB 오류 발생", ex);
-        ErrorResponse response = new ErrorResponse("데이터베이스 오류가 발생했습니다.", INTERNAL_SERVER_ERROR.value());
+        ErrorResponse response = ErrorResponse.from("데이터베이스 오류가 발생했습니다.", INTERNAL_SERVER_ERROR.value());
 
-        return new ResponseEntity<>(response, INTERNAL_SERVER_ERROR);
+        return ResponseEntity
+                .status(INTERNAL_SERVER_ERROR)
+                .body(response);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -43,12 +48,11 @@ public class GlobalExceptionHandler {
         String message = String.format("'%s' 파라미터에 잘못된 값이 들어왔습니다. 입력값: '%s', 기대 타입: '%s'",
                 name, value, expectedType);
 
-        ErrorResponse response = new ErrorResponse(
-                message,
-                BAD_REQUEST.value()
-        );
+        ErrorResponse response = ErrorResponse.from(message, BAD_REQUEST.value());
 
-        return new ResponseEntity<>(response, BAD_REQUEST);
+        return ResponseEntity
+                .status(BAD_REQUEST)
+                .body(response);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -56,13 +60,25 @@ public class GlobalExceptionHandler {
         String message = ex.getConstraintViolations()
                 .stream()
                 .map(violation -> violation.getPropertyPath() + " " + violation.getMessage())
-                .collect(Collectors.joining(", ")); // 여러 메시지를 ,로 연결
+                .collect(Collectors.joining(", "));
 
-        ErrorResponse response = new ErrorResponse(
-                message,
-                HttpStatus.BAD_REQUEST.value()
-        );
+        ErrorResponse response = ErrorResponse.from(message, BAD_REQUEST.value());
 
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity
+                .status(BAD_REQUEST)
+                .body(response);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+        String message = ex.getBindingResult().getFieldErrors().stream()
+                .map(FieldError::getDefaultMessage)
+                .collect(Collectors.joining(", "));
+
+        ErrorResponse response = ErrorResponse.from(message, BAD_REQUEST.value());
+
+        return ResponseEntity
+                .status(BAD_REQUEST)
+                .body(response);
     }
 }
